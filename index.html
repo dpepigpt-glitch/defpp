@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velhas Magalhães 🦯</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream:       #f9f0dc;
+            --paper:       #f0deb8;
+            --brown:       #5c3317;
+            --dark-brown:  #3d1f0a;
+            --gold:        #b8820a;
+            --light-gold:  #d4a835;
+            --red:         #8b1a1a;
+            --player1:     #7a2a2a;
+            --player2:     #1a3a6a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--paper);
+            background-image:
+                radial-gradient(ellipse at 15% 40%, rgba(92,51,23,.12) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 70%, rgba(92,51,23,.10) 0%, transparent 55%);
+            min-height: 100vh;
+            font-family: 'Special Elite', Georgia, serif;
+            color: var(--dark-brown);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            text-align: center;
+            padding: 22px 10px 6px;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(2em, 7vw, 3.6em);
+            color: var(--brown);
+            text-shadow: 3px 3px 6px rgba(0,0,0,.25);
+            letter-spacing: 3px;
+            line-height: 1.15;
+        }
+
+        .subtitle {
+            font-size: clamp(.8em, 2.5vw, 1.05em);
+            color: var(--light-gold);
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 8px auto;
+            color: var(--gold);
+            font-size: 1.3em;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            display: block;
+            height: 1px;
+            width: 70px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        .icons-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            font-size: 1.4em;
+            margin: 6px 0;
+            opacity: .65;
+            flex-wrap: wrap;
+        }
+
+        /* ── SCREENS ── */
+        .screen {
+            display: none;
+            width: 100%;
+            max-width: 700px;
+            padding: 16px 20px 30px;
+            flex-direction: column;
+            align-items: center;
+        }
+        .screen.active { display: flex; }
+
+        /* ── VINTAGE CARD ── */
+        .vintage-card {
+            background: var(--cream);
+            border: 2px solid var(--light-gold);
+            border-radius: 14px;
+            padding: 14px 18px;
+            position: relative;
+            margin: 10px 0;
+            width: 100%;
+            box-shadow: 3px 3px 14px rgba(0,0,0,.15), inset 0 0 30px rgba(200,160,10,.04);
+        }
+        .vintage-card::before {
+            content: '❧';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--paper);
+            padding: 0 10px;
+            color: var(--gold);
+            font-size: 1.5em;
+            line-height: 1;
+        }
+
+        /* ── SETUP PLAYERS ── */
+        .setup-players {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 16px 0 20px;
+        }
+
+        .player-card {
+            background: var(--cream);
+            border: 3px solid var(--light-gold);
+            border-radius: 14px;
+            padding: 22px 20px 18px;
+            text-align: center;
+            width: 210px;
+            box-shadow: 4px 4px 14px rgba(0,0,0,.2), inset 0 0 20px rgba(200,160,10,.05);
+            position: relative;
+        }
+        .player-card::before {
+            content: attr(data-label);
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--light-gold);
+            color: white;
+            font-size: .78em;
+            padding: 2px 14px;
+            border-radius: 20px;
+            letter-spacing: 2px;
+            white-space: nowrap;
+        }
+
+        /* ── AVATAR ── */
+        .avatar-wrap {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            margin: 0 auto 14px;
+            cursor: pointer;
+            position: relative;
+            border: 3px solid var(--light-gold);
+            overflow: hidden;
+            transition: transform .2s, box-shadow .2s;
+            box-shadow: 0 2px 12px rgba(0,0,0,.25);
+        }
+        .avatar-wrap:hover {
+            transform: scale(1.06);
+            box-shadow: 0 4px 18px rgba(200,160,10,.5);
+        }
+        .avatar-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .avatar-wrap .overlay {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(0,0,0,.55);
+            color: #fff;
+            font-size: .65em;
+            padding: 5px;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        input[type="file"] { display: none; }
+
+        .name-input {
+            width: 100%;
+            border: 2px solid var(--light-gold);
+            background: var(--paper);
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-family: 'Special Elite', serif;
+            font-size: .95em;
+            color: var(--dark-brown);
+            text-align: center;
+        }
+        .name-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 8px rgba(200,160,10,.35);
+        }
+
+        /* ── BUTTONS ── */
+        .btn {
+            background: linear-gradient(135deg, var(--brown), var(--dark-brown));
+            color: var(--cream);
+            border: none;
+            padding: 13px 36px;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.25em;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 12px rgba(0,0,0,.3);
+            transition: all .2s;
+            margin-top: 14px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0,0,0,.4);
+            background: linear-gradient(135deg, var(--gold), var(--brown));
+        }
+        .btn:active { transform: translateY(0); }
+
+        .btn-sm {
+            padding: 8px 18px;
+            font-size: .88em;
+            margin-top: 6px;
+        }
+        .btn-gray {
+            background: linear-gradient(135deg, #666, #444);
+        }
+        .btn-gray:hover {
+            background: linear-gradient(135deg, #888, #555);
+        }
+
+        /* ── GAME SCREEN ── */
+        .players-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--cream);
+            border: 2px solid var(--light-gold);
+            border-radius: 12px;
+            padding: 10px 14px;
+            width: 100%;
+            margin-bottom: 10px;
+            box-shadow: 2px 2px 8px rgba(0,0,0,.12);
+        }
+
+        .p-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform .3s;
+        }
+        .p-info.right { flex-direction: row-reverse; text-align: right; }
+        .p-info.active { transform: scale(1.07); }
+        .p-info.active .p-photo {
+            box-shadow: 0 0 0 3px var(--gold), 0 0 14px rgba(200,160,10,.7);
+        }
+
+        .p-photo {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--light-gold);
+            transition: box-shadow .3s;
+        }
+
+        .p-name {
+            font-family: 'Playfair Display', serif;
+            font-size: .95em;
+            font-weight: 700;
+            color: var(--brown);
+        }
+        .p-score {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--gold);
+        }
+
+        .vs { font-family: 'Playfair Display', serif; font-size: 1.3em; font-style: italic; color: var(--red); }
+
+        .turn-msg {
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.05em;
+            color: var(--brown);
+            min-height: 1.6em;
+            margin: 6px 0 10px;
+        }
+
+        /* ── BOARD ── */
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 7px;
+            background: var(--brown);
+            border: 8px solid var(--brown);
+            border-radius: 14px;
+            box-shadow: 0 8px 28px rgba(0,0,0,.35), inset 0 0 20px rgba(0,0,0,.2);
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* ornamental corners on board */
+        .board-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .board-wrap::before,
+        .board-wrap::after {
+            content: '🦯';
+            position: absolute;
+            font-size: 1.6em;
+            top: -28px;
+            opacity: .5;
+        }
+        .board-wrap::before { left: 0; transform: scaleX(-1); }
+        .board-wrap::after  { right: 0; }
+
+        .cell {
+            background: var(--cream);
+            border-radius: 7px;
+            aspect-ratio: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            transition: background .15s, box-shadow .15s;
+        }
+        .cell:hover:not(.taken) {
+            background: #fef9e8;
+            box-shadow: inset 0 0 14px rgba(200,160,10,.35);
+        }
+        .cell.taken { cursor: not-allowed; }
+        .cell.winner-cell {
+            animation: winGlow .55s ease-in-out infinite alternate;
+        }
+        @keyframes winGlow {
+            from { background: var(--cream); box-shadow: none; }
+            to   { background: #fff9df; box-shadow: inset 0 0 22px rgba(200,160,10,.8); }
+        }
+
+        .cell-img {
+            width: 84%;
+            height: 84%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--light-gold);
+            box-shadow: 2px 2px 8px rgba(0,0,0,.3);
+            animation: popIn .3s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @keyframes popIn {
+            from { transform: scale(0) rotate(-15deg); opacity: 0; }
+            to   { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .history-text {
+            text-align: center;
+            margin-top: 8px;
+            font-size: .8em;
+            color: #999;
+            font-style: italic;
+        }
+
+        /* ── VICTORY OVERLAY ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.75);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        .overlay.show { display: flex; }
+
+        .victory-box {
+            background: var(--cream);
+            border: 6px double var(--gold);
+            border-radius: 18px;
+            padding: 36px 30px;
+            text-align: center;
+            max-width: 380px;
+            width: 92%;
+            box-shadow: 0 0 50px rgba(200,160,10,.45);
+            animation: popIn .45s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        .victory-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--red);
+            line-height: 1.2;
+        }
+
+        .victory-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--gold);
+            box-shadow: 0 0 20px rgba(200,160,10,.6);
+            margin: 14px auto;
+            display: block;
+        }
+
+        .victory-msg {
+            font-size: 1em;
+            color: var(--brown);
+            font-style: italic;
+            margin: 8px 0 4px;
+        }
+
+        /* ── CONFETTI ── */
+        .confetti {
+            position: fixed;
+            pointer-events: none;
+            z-index: 300;
+            animation: fall linear forwards;
+        }
+        @keyframes fall {
+            from { transform: translateY(-30px) rotate(0deg); opacity: 1; }
+            to   { transform: translateY(105vh) rotate(800deg); opacity: 0; }
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 500px) {
+            .setup-players { gap: 16px; }
+            .player-card { width: 180px; padding: 20px 14px 16px; }
+            .avatar-wrap { width: 110px; height: 110px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══════════ SETUP SCREEN ══════════ -->
+<div id="screen-setup" class="screen active">
+    <div class="header">
+        <div class="icons-row">🦯 🧶 🦷 👓 💊 🫙 🪑 🧦 🫖</div>
+        <h1 class="title">Velhas Magalhães</h1>
+        <div class="subtitle">O Lendário Jogo da Velha</div>
+        <div class="divider">🌸</div>
+    </div>
+
+    <div class="vintage-card" style="text-align:center; font-style:italic; font-size:.95em; color:var(--brown);">
+        "Duas velhas entram, uma velha sai!<br>Clique na foto para carregar sua jogadora." 👵
+    </div>
+
+    <div class="setup-players">
+        <!-- Player 1 -->
+        <div class="player-card" data-label="JOGADORA 1">
+            <div class="avatar-wrap" onclick="document.getElementById('file1').click()" title="Clique para trocar a foto">
+                <img id="avatar1" alt="Velha 1">
+                <div class="overlay">📸 Trocar</div>
+            </div>
+            <input type="file" id="file1" accept="image/*" onchange="loadPhoto(event,1)">
+            <input type="text" class="name-input" id="name1" value="Velha 1" maxlength="20">
+        </div>
+
+        <!-- Player 2 -->
+        <div class="player-card" data-label="JOGADORA 2">
+            <div class="avatar-wrap" onclick="document.getElementById('file2').click()" title="Clique para trocar a foto">
+                <img id="avatar2" alt="Velha 2">
+                <div class="overlay">📸 Trocar</div>
+            </div>
+            <input type="file" id="file2" accept="image/*" onchange="loadPhoto(event,2)">
+            <input type="text" class="name-input" id="name2" value="Velha 2" maxlength="20">
+        </div>
+    </div>
+
+    <button class="btn" onclick="startGame()">🎮 JOGAR! 🎮</button>
+    <p style="margin-top:12px; font-size:.78em; color:#999; text-align:center;">
+        Dica: Clique na imagem para carregar a foto da velha preferida!
+    </p>
+</div>
+
+<!-- ══════════ GAME SCREEN ══════════ -->
+<div id="screen-game" class="screen">
+    <div class="header">
+        <div class="icons-row">🦯 🧶 🦷 👓 💊 🪑</div>
+        <h1 class="title">Velhas Magalhães</h1>
+        <div class="divider">🌸</div>
+    </div>
+
+    <!-- Players bar -->
+    <div class="players-bar">
+        <div class="p-info" id="p1-info">
+            <img class="p-photo" id="p1-photo" alt="P1">
+            <div>
+                <div class="p-name" id="p1-name">Velha 1</div>
+                <div class="p-score" id="p1-score">0</div>
+            </div>
+        </div>
+
+        <div class="vs">VS</div>
+
+        <div class="p-info right" id="p2-info">
+            <img class="p-photo" id="p2-photo" alt="P2">
+            <div>
+                <div class="p-name" id="p2-name">Velha 2</div>
+                <div class="p-score" id="p2-score">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="turn-msg" id="turn-msg">—</div>
+
+    <!-- Board -->
+    <div class="board-wrap">
+        <div class="board" id="board">
+            <div class="cell" id="c0" onclick="move(0)"></div>
+            <div class="cell" id="c1" onclick="move(1)"></div>
+            <div class="cell" id="c2" onclick="move(2)"></div>
+            <div class="cell" id="c3" onclick="move(3)"></div>
+            <div class="cell" id="c4" onclick="move(4)"></div>
+            <div class="cell" id="c5" onclick="move(5)"></div>
+            <div class="cell" id="c6" onclick="move(6)"></div>
+            <div class="cell" id="c7" onclick="move(7)"></div>
+            <div class="cell" id="c8" onclick="move(8)"></div>
+        </div>
+    </div>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:16px;">
+        <button class="btn btn-sm" onclick="resetBoard()">🔄 Nova Rodada</button>
+        <button class="btn btn-sm btn-gray" onclick="backSetup()">⚙️ Configurar</button>
+    </div>
+
+    <div class="history-text" id="history-text"></div>
+</div>
+
+<!-- ══════════ VICTORY OVERLAY ══════════ -->
+<div class="overlay" id="overlay">
+    <div class="victory-box">
+        <div class="victory-title" id="v-title">GANHOU!</div>
+        <img class="victory-img" id="v-img" alt="Vencedora">
+        <div class="victory-msg" id="v-msg">Parabéns!</div>
+        <div class="icons-row" style="font-size:1.8em; opacity:1; margin:8px 0;">🎉🦯🏆🦯🎉</div>
+        <button class="btn" onclick="closeVictory()">🎮 Jogar de Novo!</button>
+    </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+//  VELHAS MAGALHÃES — JOGO DA VELHA
+// ═══════════════════════════════════════
+
+const WIN_COMBOS = [
+    [0,1,2],[3,4,5],[6,7,8],
+    [0,3,6],[1,4,7],[2,5,8],
+    [0,4,8],[2,4,6]
+];
+
+const WIN_MSGS = [
+    "Levou a melhor com a bengala em riste! 🦯",
+    "Mais afiada que a dentadura nova! 🦷",
+    "A panela furada deu sorte! 🍳",
+    "Os netos vão ouvir sobre isso! 👴",
+    "Nem a artrite segurou essa campeã! 💪",
+    "Ainda bem que não estava de andador! 🏆",
+    "Cuidado com a bengala, campeã! 🦯",
+    "Nem o novelo de lã atrapalhou! 🧶",
+    "Que velha danada! Toma que o filho é teu! 🎉",
+];
+
+const DRAW_MSGS = [
+    "Empate! As duas velhas são igualmente teimosas! 👵👵",
+    "Deu velha velha! Recomeçar! 🤝",
+    "Nem remédio resolve esse empate! 💊",
+    "As duas estão com a memória fraca hoje... 🧠",
+];
+
+const TURN_MSGS = [
+    n => `É a vez de ${n}! 🦯`,
+    n => `Pensa, ${n}! (Não esquece do remédio) 💊`,
+    n => `Sua vez, ${n}! Mostre quem manda! 👵`,
+    n => `Mexe logo, ${n}, que o novelo acabou! 🧶`,
+    n => `${n}, vai com tudo! Ajuste os óculos! 👓`,
+];
+
+// ── State ──
+let board       = Array(9).fill(null);
+let turn        = 1;   // 1 or 2
+let scores      = {1:0, 2:0};
+let draws       = 0;
+let active      = true;
+let imgs        = ['',''];
+let names       = ['Velha 1','Velha 2'];
+
+// ── Default SVG avatars ──
+function makeSVG(skin, dress, label) {
+    const s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120">
+        <ellipse cx="50" cy="98" rx="27" ry="20" fill="${dress}"/>
+        <rect x="33" y="68" width="34" height="36" rx="5" fill="${dress}"/>
+        <ellipse cx="50" cy="63" rx="14" ry="10" fill="${skin}"/>
+        <circle cx="50" cy="40" r="21" fill="${skin}"/>
+        <ellipse cx="50" cy="25" rx="19" ry="11" fill="#c0c0c0"/>
+        <circle cx="50" cy="20" r="10" fill="#d0d0d0"/>
+        <circle cx="43" cy="40" r="3" fill="none" stroke="#333" stroke-width="1.6"/>
+        <circle cx="57" cy="40" r="3" fill="none" stroke="#333" stroke-width="1.6"/>
+        <line x1="46" y1="40" x2="54" y2="40" stroke="#333" stroke-width="1.6"/>
+        <line x1="36" y1="40" x2="34" y2="37" stroke="#333" stroke-width="1.4"/>
+        <line x1="64" y1="40" x2="66" y2="37" stroke="#333" stroke-width="1.4"/>
+        <circle cx="43" cy="40" r="1.5" fill="#222"/>
+        <circle cx="57" cy="40" r="1.5" fill="#222"/>
+        <path d="M44 50 Q50 56 56 50" stroke="#a04040" fill="none" stroke-width="1.8"/>
+        <line x1="74" y1="120" x2="67" y2="75" stroke="#7a5535" stroke-width="3" stroke-linecap="round"/>
+        <path d="M67 75 Q60 64 66 56" stroke="#7a5535" fill="none" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="82" cy="14" r="13" fill="${dress}" opacity=".92"/>
+        <text x="82" y="19" text-anchor="middle" fill="white" font-size="14" font-weight="bold" font-family="serif">${label}</text>
+    </svg>`;
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
+}
+
+const DEFAULTS = [
+    makeSVG('#d4956a','#8b3535','1'),
+    makeSVG('#c4875e','#2a4a7f','2'),
+];
+
+// ── Init ──
+window.addEventListener('DOMContentLoaded', () => {
+    imgs[0] = DEFAULTS[0];
+    imgs[1] = DEFAULTS[1];
+    document.getElementById('avatar1').src = DEFAULTS[0];
+    document.getElementById('avatar2').src = DEFAULTS[1];
+});
+
+// ── Photo upload ──
+function loadPhoto(evt, player) {
+    const file = evt.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        imgs[player-1] = e.target.result;
+        document.getElementById(`avatar${player}`).src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+// ── Start game ──
+function startGame() {
+    names[0] = document.getElementById('name1').value.trim() || 'Velha 1';
+    names[1] = document.getElementById('name2').value.trim() || 'Velha 2';
+
+    document.getElementById('p1-name').textContent = names[0];
+    document.getElementById('p2-name').textContent = names[1];
+    document.getElementById('p1-photo').src = imgs[0];
+    document.getElementById('p2-photo').src = imgs[1];
+
+    scores = {1:0, 2:0};
+    draws  = 0;
+
+    showScreen('game');
+    resetBoard();
+}
+
+function backSetup() { showScreen('setup'); }
+
+// ── Board ──
+function resetBoard() {
+    board  = Array(9).fill(null);
+    turn   = 1;
+    active = true;
+
+    for (let i = 0; i < 9; i++) {
+        const c = document.getElementById(`c${i}`);
+        c.innerHTML = '';
+        c.classList.remove('taken','winner-cell');
+    }
+    updateActive();
+    setTurnMsg();
+    updateHistory();
+}
+
+function move(idx) {
+    if (!active || board[idx] !== null) return;
+
+    board[idx] = turn;
+
+    const c = document.getElementById(`c${idx}`);
+    c.classList.add('taken');
+
+    const img = document.createElement('img');
+    img.src       = imgs[turn-1];
+    img.className = 'cell-img';
+    img.alt       = names[turn-1];
+    c.appendChild(img);
+
+    const result = checkResult();
+    if (result) { handleResult(result); return; }
+
+    turn = turn === 1 ? 2 : 1;
+    updateActive();
+    setTurnMsg();
+}
+
+function checkResult() {
+    for (const [a,b,c] of WIN_COMBOS) {
+        if (board[a] && board[a]===board[b] && board[a]===board[c])
+            return { type:'win', player:board[a], combo:[a,b,c] };
+    }
+    if (board.every(v=>v!==null)) return { type:'draw' };
+    return null;
+}
+
+function handleResult(r) {
+    active = false;
+
+    if (r.type === 'win') {
+        scores[r.player]++;
+        r.combo.forEach(i => document.getElementById(`c${i}`).classList.add('winner-cell'));
+        updateScores();
+        updateHistory();
+
+        setTimeout(() => {
+            const pi = r.player - 1;
+            document.getElementById('v-title').textContent = `🏆 ${names[pi]} GANHOU! 🏆`;
+            document.getElementById('v-img').src = imgs[pi];
+            document.getElementById('v-msg').textContent = WIN_MSGS[Math.floor(Math.random()*WIN_MSGS.length)];
+            document.getElementById('overlay').classList.add('show');
+            launchConfetti();
+        }, 600);
+
+    } else {
+        draws++;
+        document.getElementById('turn-msg').textContent = DRAW_MSGS[Math.floor(Math.random()*DRAW_MSGS.length)];
+        updateScores();
+        updateHistory();
+    }
+}
+
+function closeVictory() {
+    document.getElementById('overlay').classList.remove('show');
+    resetBoard();
+}
+
+// ── UI helpers ──
+function updateActive() {
+    document.getElementById('p1-info').classList.toggle('active', turn===1);
+    document.getElementById('p2-info').classList.toggle('active', turn===2);
+}
+
+function setTurnMsg() {
+    const fn = TURN_MSGS[Math.floor(Math.random()*TURN_MSGS.length)];
+    document.getElementById('turn-msg').textContent = fn(names[turn-1]);
+}
+
+function updateScores() {
+    document.getElementById('p1-score').textContent = scores[1];
+    document.getElementById('p2-score').textContent = scores[2];
+}
+
+function updateHistory() {
+    const total = scores[1] + scores[2] + draws;
+    const el    = document.getElementById('history-text');
+    if (total === 0) { el.textContent = ''; return; }
+    el.textContent = `Rodadas: ${total}  |  ${names[0]}: ${scores[1]}  |  ${names[1]}: ${scores[2]}  |  Empates: ${draws}`;
+}
+
+function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(`screen-${name}`).classList.add('active');
+}
+
+// ── Confetti ──
+function launchConfetti() {
+    const colors = ['#b8820a','#8b1a1a','#1a3a6a','#3a7a3a','#7a2a7a','#f9f0dc','#c8a050'];
+    for (let i = 0; i < 90; i++) {
+        setTimeout(() => {
+            const el = document.createElement('div');
+            el.className = 'confetti';
+            const size = Math.random()*10 + 5;
+            el.style.cssText = `
+                left:${Math.random()*100}vw;
+                top:-20px;
+                width:${size}px;
+                height:${size}px;
+                background:${colors[Math.floor(Math.random()*colors.length)]};
+                border-radius:${Math.random()>.5?'50%':'2px'};
+                animation-duration:${Math.random()*2+1.5}s;
+            `;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 4500);
+        }, i * 35);
+    }
+}
+</script>
+</body>
+</html>
