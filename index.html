@@ -329,29 +329,39 @@
             font-family: 'Bebas Neue', sans-serif;
             font-size: 2.2em;
             letter-spacing: 4px;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
         .win-p1 .victory-title { color: var(--red-light); }
         .win-p2 .victory-title { color: #44ff88; }
         .win-draw .victory-title { color: var(--yellow); }
-        .victory-photo {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin: 10px auto;
+        .victory-illustration {
+            width: 220px;
+            height: 200px;
+            margin: 8px auto;
             display: block;
+            animation: bounceIn .6s cubic-bezier(.34,1.56,.64,1);
         }
-        .win-p1 .victory-photo { border: 4px solid var(--red); box-shadow: 0 0 20px rgba(204,0,0,.5); }
-        .win-p2 .victory-photo { border: 4px solid var(--green); box-shadow: 0 0 20px rgba(0,156,59,.5); }
+        @keyframes bounceIn {
+            from { transform: scale(0) rotate(-15deg); opacity:0; }
+            to   { transform: scale(1) rotate(0deg);  opacity:1; }
+        }
+        @keyframes floatMoney {
+            0%,100% { transform: translateY(0) rotate(var(--r)); }
+            50%      { transform: translateY(-10px) rotate(var(--r)); }
+        }
+        @keyframes wag {
+            0%,100% { transform-origin: left center; transform: rotate(0deg); }
+            25%      { transform: rotate(20deg); }
+            75%      { transform: rotate(-20deg); }
+        }
         .victory-msg {
             font-family: 'Special Elite', serif;
             font-size: 1em;
             color: #bbb;
-            margin: 10px 0 16px;
+            margin: 8px 0 14px;
             font-style: italic;
         }
-        .icons-row { font-size: 1.8em; margin: 8px 0; }
+        .icons-row { font-size: 1.8em; margin: 6px 0; }
 
         /* ── CONFETTI ── */
         .confetti-piece {
@@ -468,7 +478,7 @@
 <div class="victory-overlay" id="victory-overlay">
     <div class="victory-box" id="victory-box">
         <div class="victory-title" id="v-title">GANHOU!</div>
-        <img class="victory-photo" id="v-photo" src="" alt="Vencedor">
+        <div id="v-illustration"></div>
         <div class="victory-msg" id="v-msg"></div>
         <div class="icons-row" id="v-icons">🏆</div>
         <button class="btn" onclick="closeVictory()">🔄 JOGAR DE NOVO</button>
@@ -590,14 +600,127 @@ function handleResult(r) {
     }
 }
 
+const SVG_LULA = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 280" class="victory-illustration">
+  <!-- Brilho fundo -->
+  <circle cx="130" cy="155" r="110" fill="rgba(204,0,0,0.08)"/>
+  <!-- Corpo terno vermelho -->
+  <ellipse cx="130" cy="235" rx="62" ry="55" fill="#aa1100"/>
+  <rect x="68" y="175" width="124" height="90" rx="12" fill="#cc2200"/>
+  <!-- Faixa presidencial verde -->
+  <polygon points="115,175 105,265 125,265 135,175" fill="#009c3b" opacity=".85"/>
+  <!-- Estrela PT no peito -->
+  <text x="97" y="220" font-size="22" fill="white" opacity=".9">★</text>
+  <!-- Pescoço -->
+  <rect x="112" y="148" width="36" height="32" rx="6" fill="#c47c50"/>
+  <!-- Cabeça redonda -->
+  <circle cx="130" cy="118" r="58" fill="#d4875a"/>
+  <!-- Barba branca icônica -->
+  <ellipse cx="130" cy="152" rx="46" ry="30" fill="#f0f0f0"/>
+  <path d="M84,128 Q130,175 176,128" fill="#f0f0f0"/>
+  <!-- Bigode -->
+  <path d="M108,135 Q130,145 152,135" fill="#e0e0e0" stroke="#ccc" stroke-width="1"/>
+  <!-- Boné PT vermelho -->
+  <ellipse cx="130" cy="74" rx="58" ry="14" fill="#aa0000"/>
+  <rect x="72" y="58" width="116" height="26" rx="7" fill="#cc0000"/>
+  <text x="130" y="77" text-anchor="middle" fill="white" font-size="16" font-weight="bold" font-family="Arial">PT</text>
+  <!-- Olhos felizes (fechados de alegria) -->
+  <path d="M108,112 Q116,106 124,112" stroke="#5a3010" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M136,112 Q144,106 152,112" stroke="#5a3010" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- Nariz grande -->
+  <ellipse cx="130" cy="128" rx="10" ry="8" fill="#b86840"/>
+  <!-- Sorriso grande -->
+  <path d="M108,140 Q130,158 152,140" stroke="#5a3010" stroke-width="3" fill="#ff7755" stroke-linecap="round"/>
+  <!-- Braço direito segurando maleta -->
+  <ellipse cx="205" cy="210" rx="16" ry="45" fill="#cc2200" transform="rotate(20,205,210)"/>
+  <!-- Maleta marrom -->
+  <rect x="195" y="218" width="82" height="60" rx="9" fill="#7a4f0a"/>
+  <rect x="195" y="218" width="82" height="60" rx="9" fill="none" stroke="#5a3808" stroke-width="3"/>
+  <path d="M218,218 Q236,200 256,218" fill="none" stroke="#5a3808" stroke-width="6" stroke-linecap="round"/>
+  <rect x="226" y="242" width="22" height="10" rx="3" fill="#c8900a"/>
+  <line x1="195" y1="248" x2="277" y2="248" stroke="#5a3808" stroke-width="2"/>
+  <!-- Cédulas voando -->
+  <g style="animation:floatMoney 1.5s ease-in-out infinite;--r:-20deg">
+    <rect x="168" y="185" width="38" height="20" rx="3" fill="#1a7a35" transform="rotate(-20,168,185)"/>
+    <text x="172" y="199" fill="#7fffaa" font-size="7" font-family="Arial" font-weight="bold" transform="rotate(-20,168,185)">R$100</text>
+  </g>
+  <g style="animation:floatMoney 1.8s ease-in-out infinite .3s;--r:15deg">
+    <rect x="230" y="175" width="38" height="20" rx="3" fill="#1a7a35" transform="rotate(15,230,175)"/>
+    <text x="234" y="189" fill="#7fffaa" font-size="7" font-family="Arial" font-weight="bold" transform="rotate(15,230,175)">R$100</text>
+  </g>
+  <g style="animation:floatMoney 2s ease-in-out infinite .6s;--r:-10deg">
+    <rect x="255" y="200" width="38" height="20" rx="3" fill="#1a7a35" transform="rotate(-10,255,200)"/>
+    <text x="259" y="214" fill="#7fffaa" font-size="7" font-family="Arial" font-weight="bold" transform="rotate(-10,255,200)">R$100</text>
+  </g>
+  <g style="animation:floatMoney 1.6s ease-in-out infinite .2s;--r:25deg">
+    <rect x="148" y="210" width="38" height="20" rx="3" fill="#1a7a35" transform="rotate(25,148,210)"/>
+    <text x="152" y="224" fill="#7fffaa" font-size="7" font-family="Arial" font-weight="bold" transform="rotate(25,148,210)">R$100</text>
+  </g>
+  <g style="animation:floatMoney 2.2s ease-in-out infinite .8s;--r:-30deg">
+    <rect x="270" y="165" width="38" height="20" rx="3" fill="#1a7a35" transform="rotate(-30,270,165)"/>
+    <text x="274" y="179" fill="#7fffaa" font-size="7" font-family="Arial" font-weight="bold" transform="rotate(-30,270,165)">R$100</text>
+  </g>
+</svg>`;
+
+const SVG_JUMENTO = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 250" class="victory-illustration">
+  <!-- Brilho fundo -->
+  <circle cx="150" cy="140" r="110" fill="rgba(0,156,59,0.1)"/>
+  <!-- Corpo do jumento (verde) -->
+  <ellipse cx="155" cy="175" rx="95" ry="65" fill="#009c3b"/>
+  <!-- Pernas -->
+  <rect x="80"  y="210" width="22" height="40" rx="8"  fill="#007a2d"/>
+  <rect x="112" y="215" width="22" height="35" rx="8"  fill="#007a2d"/>
+  <rect x="172" y="215" width="22" height="35" rx="8"  fill="#007a2d"/>
+  <rect x="204" y="210" width="22" height="40" rx="8"  fill="#007a2d"/>
+  <!-- Casco amarelo -->
+  <ellipse cx="91"  cy="250" rx="13" ry="7" fill="#ffdf00"/>
+  <ellipse cx="123" cy="250" rx="13" ry="7" fill="#ffdf00"/>
+  <ellipse cx="183" cy="250" rx="13" ry="7" fill="#ffdf00"/>
+  <ellipse cx="215" cy="250" rx="13" ry="7" fill="#ffdf00"/>
+  <!-- Cauda (amarela, balançando) -->
+  <g style="animation:wag 1s ease-in-out infinite; transform-origin:242px 165px">
+    <path d="M242,165 Q275,145 285,125 Q290,108 275,115" stroke="#ffdf00" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="273" cy="117" rx="10" ry="8" fill="#ffdf00"/>
+  </g>
+  <!-- Pescoço -->
+  <ellipse cx="90" cy="148" rx="28" ry="42" fill="#009c3b" transform="rotate(-15,90,148)"/>
+  <!-- Cabeça -->
+  <ellipse cx="60" cy="108" rx="42" ry="35" fill="#009c3b"/>
+  <!-- Focinho grande (amarelo) -->
+  <ellipse cx="30" cy="118" rx="22" ry="16" fill="#ffdf00"/>
+  <!-- Narinas -->
+  <circle cx="23" cy="120" r="4" fill="#007a2d"/>
+  <circle cx="37" cy="120" r="4" fill="#007a2d"/>
+  <!-- Olho (bem grande e engraçado) -->
+  <circle cx="68" cy="100" r="14" fill="white"/>
+  <circle cx="65" cy="100" r="8"  fill="#333"/>
+  <circle cx="62" cy="97"  r="3"  fill="white"/>
+  <!-- Cílios cômicos -->
+  <line x1="68" y1="86" x2="65" y2="78" stroke="#333" stroke-width="2"/>
+  <line x1="75" y1="88" x2="75" y2="80" stroke="#333" stroke-width="2"/>
+  <line x1="82" y1="92" x2="84" y2="84" stroke="#333" stroke-width="2"/>
+  <!-- Orelhas grandes (amarelas) -->
+  <ellipse cx="55" cy="72" rx="10" ry="26" fill="#ffdf00" transform="rotate(-20,55,72)"/>
+  <ellipse cx="55" cy="72" rx="6"  ry="20" fill="#ffc000" transform="rotate(-20,55,72)"/>
+  <ellipse cx="88" cy="68" rx="10" ry="26" fill="#ffdf00" transform="rotate(10,88,68)"/>
+  <ellipse cx="88" cy="68" rx="6"  ry="20" fill="#ffc000" transform="rotate(10,88,68)"/>
+  <!-- Crina amarela -->
+  <path d="M62,78 Q80,60 100,72 Q118,60 128,75 Q138,62 148,78" stroke="#ffdf00" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <!-- 22 no corpo -->
+  <text x="155" y="185" text-anchor="middle" fill="#ffdf00" font-size="36" font-weight="bold" font-family="Arial" opacity=".9">22</text>
+  <!-- Estrelinhas -->
+  <text x="230" y="100" font-size="20" fill="#ffdf00">⭐</text>
+  <text x="240" y="135" font-size="14" fill="#ffdf00">⭐</text>
+  <text x="218" y="115" font-size="12" fill="#ffdf00">⭐</text>
+</svg>`;
+
 function showVictory(p) {
     const box = document.getElementById('victory-box');
     box.className = 'victory-box win-p'+(p===1?'1':'2');
     document.getElementById('v-title').textContent = names[p-1]+' GANHOU! 🏆';
-    document.getElementById('v-photo').src = imgs[p-1];
+    document.getElementById('v-illustration').innerHTML = p===1 ? SVG_LULA : SVG_JUMENTO;
     const msgs = p===1 ? WIN_MSGS_1 : WIN_MSGS_2;
     document.getElementById('v-msg').textContent = msgs[Math.floor(Math.random()*msgs.length)];
-    document.getElementById('v-icons').textContent = p===1 ? '🔴⭐🔴' : '💚⭐💛';
+    document.getElementById('v-icons').textContent = p===1 ? '🔴💰🔴' : '💚🫏💛';
     document.getElementById('victory-overlay').classList.add('show');
     launchConfetti(p);
 }
