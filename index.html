@@ -200,34 +200,6 @@
             box-shadow: 0 4px 12px rgba(0,0,0,.4);
         }
         .btn-gray:hover { box-shadow: 0 6px 18px rgba(0,0,0,.6); }
-
-        /* ── MODE SELECTOR ── */
-        .mode-selector {
-            display: flex;
-            gap: 14px;
-            justify-content: center;
-            margin: 16px 0 4px;
-            flex-wrap: wrap;
-        }
-        .mode-btn {
-            background: #2a2a2a;
-            border: 2px solid #555;
-            color: #aaa;
-            padding: 12px 28px;
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.3em;
-            letter-spacing: 2px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all .2s;
-        }
-        .mode-btn:hover { border-color: var(--yellow); color: var(--yellow); }
-        .mode-btn.selected {
-            background: linear-gradient(135deg, #2a1a00, #1a1000);
-            border-color: var(--yellow);
-            color: var(--yellow);
-            box-shadow: 0 0 16px rgba(255,223,0,.3);
-        }
         .side-selector {
             display: none;
             gap: 14px;
@@ -535,12 +507,7 @@
     </div>
 
     <div style="text-align:center; margin-top:12px;">
-        <div style="font-family:'Special Elite',serif; color:#888; font-size:.85em; letter-spacing:3px; margin-bottom:10px;">MODO DE JOGO</div>
-        <div class="mode-selector">
-            <button class="mode-btn selected" id="btn-2p" onclick="selectMode('2p')">👥 2 JOGADORES</button>
-            <button class="mode-btn" id="btn-cpu" onclick="selectMode('cpu')">🤖 VS COMPUTADOR</button>
-        </div>
-        <div class="side-selector" id="side-selector">
+        <div class="side-selector show" id="side-selector">
             <div style="width:100%; text-align:center; font-family:'Special Elite',serif; color:#888; font-size:.8em; letter-spacing:3px; margin-bottom:6px;">JOGAR COM:</div>
             <button class="side-btn p1-side selected" id="btn-side1" onclick="selectSide(1)">🔴 JBLULIS</button>
             <button class="side-btn p2-side" id="btn-side2" onclick="selectSide(2)">💚 ANABOZO</button>
@@ -549,8 +516,8 @@
             <div style="font-family:'Special Elite',serif; color:#888; font-size:.8em; letter-spacing:3px; margin-bottom:2px;">NÍVEL DE DIFICULDADE:</div>
             <div class="diff-btns">
                 <button class="diff-btn fudiav" id="btn-fudiav" onclick="selectDiff('fudiav')">
-                    🧠 FUDIAVAL
-                    <span class="diff-sub">Joga qualquer coisa</span>
+                    🧠 FUDISvaldo
+                    <span class="diff-sub">Nem sabe o que tá fazendo</span>
                 </button>
                 <button class="diff-btn solz selected" id="btn-solz" onclick="selectDiff('solz')">
                     ☀️ SOLZINHO
@@ -683,13 +650,7 @@ function loadPhoto(evt, p) {
     r.readAsDataURL(file);
 }
 
-function selectMode(m) {
-    gameMode = m;
-    document.getElementById('btn-2p').classList.toggle('selected', m==='2p');
-    document.getElementById('btn-cpu').classList.toggle('selected', m==='cpu');
-    document.getElementById('side-selector').classList.toggle('show', m==='cpu');
-    document.getElementById('diff-selector').classList.toggle('show', m==='cpu');
-}
+
 
 function selectSide(s) {
     humanSide = s;
@@ -705,7 +666,7 @@ function selectDiff(d) {
 }
 
 function startGame() {
-    vsComputer = gameMode === 'cpu';
+    vsComputer = true;
     humanPlayer = humanSide;
     names[0] = document.getElementById('name1').value || 'JBLULIS';
     names[1] = document.getElementById('name2').value || 'ANABOZO';
@@ -773,9 +734,8 @@ function aiMove() {
         // Win if possible, block if needed, otherwise random
         idx = smartMove(aiP) ?? empty[Math.floor(Math.random()*empty.length)];
     } else {
-        // Fudiaval: 85% random, 15% smart (barely)
-        if (Math.random() < 0.15) idx = smartMove(aiP) ?? empty[Math.floor(Math.random()*empty.length)];
-        else idx = empty[Math.floor(Math.random()*empty.length)];
+        // FUDISvaldo: 100% random, nem tenta
+        idx = empty[Math.floor(Math.random()*empty.length)];
     }
 
     if (idx === -1 || idx === undefined) return;
@@ -999,7 +959,7 @@ function updateActive() {
 function setTurnMsg() {
     if (vsComputer && turn !== humanPlayer) {
         const thinkMsgs = {
-            fudiav: '🧠 Ermm... bora em qualquer um aqui...',
+            fudiav: '🧠 FUDISvaldo escolhendo... eeny meeny miny moe...',
             solz:   '🤖 Espera, tô pensando, não sou um JuJu Leonel porra...',
             rr:     '💀 Calculando sua destruição...'
         };
