@@ -697,7 +697,7 @@ function resetBoard() {
     updateHistory();
     // If AI goes first (AI is player 1 and human is player 2)
     if (vsComputer && humanPlayer !== 1) {
-        setTimeout(aiMove, 5000);
+        setTimeout(aiMove, {fudiav:8000,solz:4000,rr:600}[difficulty]||4000);
     }
 }
 
@@ -717,7 +717,7 @@ function move(i) {
     updateActive();
     setTurnMsg();
     if (vsComputer && turn !== humanPlayer) {
-        setTimeout(aiMove, 5000);
+        setTimeout(aiMove, {fudiav:8000,solz:4000,rr:600}[difficulty]||4000);
     }
 }
 
@@ -959,8 +959,8 @@ function updateActive() {
 function setTurnMsg() {
     if (vsComputer && turn !== humanPlayer) {
         const thinkMsgs = {
-            fudiav: '🧠 FUDISvaldo escolhendo... eeny meeny miny moe...',
-            solz:   '🤖 Espera, tô pensando, não sou um JuJu Leonel porra...',
+            fudiav: '🧠 um, to pensando, vou já decidir, jaja decido, ei alguem decide por mim ai ?',
+            solz:   '☀️ calma estou malhando, jaja jogo',
             rr:     '💀 Calculando sua destruição...'
         };
         document.getElementById('turn-msg').textContent = thinkMsgs[difficulty] || thinkMsgs.solz;
