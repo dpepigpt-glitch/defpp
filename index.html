@@ -668,7 +668,7 @@ function resetBoard() {
     updateHistory();
     // If AI goes first (AI is player 1 and human is player 2)
     if (vsComputer && humanPlayer !== 1) {
-        setTimeout(aiMove, 500);
+        setTimeout(aiMove, 5000);
     }
 }
 
@@ -688,7 +688,7 @@ function move(i) {
     updateActive();
     setTurnMsg();
     if (vsComputer && turn !== humanPlayer) {
-        setTimeout(aiMove, 480);
+        setTimeout(aiMove, 5000);
     }
 }
 
