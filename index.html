@@ -201,6 +201,78 @@
         }
         .btn-gray:hover { box-shadow: 0 6px 18px rgba(0,0,0,.6); }
 
+        /* ── MODE SELECTOR ── */
+        .mode-selector {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            margin: 16px 0 4px;
+            flex-wrap: wrap;
+        }
+        .mode-btn {
+            background: #2a2a2a;
+            border: 2px solid #555;
+            color: #aaa;
+            padding: 12px 28px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.3em;
+            letter-spacing: 2px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all .2s;
+        }
+        .mode-btn:hover { border-color: var(--yellow); color: var(--yellow); }
+        .mode-btn.selected {
+            background: linear-gradient(135deg, #2a1a00, #1a1000);
+            border-color: var(--yellow);
+            color: var(--yellow);
+            box-shadow: 0 0 16px rgba(255,223,0,.3);
+        }
+        .side-selector {
+            display: none;
+            gap: 14px;
+            justify-content: center;
+            margin: 8px 0 4px;
+            flex-wrap: wrap;
+        }
+        .side-selector.show { display: flex; }
+        .side-btn {
+            background: #2a2a2a;
+            border: 2px solid #555;
+            color: #aaa;
+            padding: 10px 24px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1em;
+            letter-spacing: 2px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all .2s;
+        }
+        .side-btn.p1-side:hover, .side-btn.p1-side.selected {
+            background: linear-gradient(135deg, #3a0000, #1a0000);
+            border-color: var(--red);
+            color: var(--red-light);
+            box-shadow: 0 0 12px rgba(204,0,0,.3);
+        }
+        .side-btn.p2-side:hover, .side-btn.p2-side.selected {
+            background: linear-gradient(135deg, #003a10, #001a08);
+            border-color: var(--green);
+            color: #44ff88;
+            box-shadow: 0 0 12px rgba(0,156,59,.3);
+        }
+        .cpu-badge {
+            display: inline-block;
+            background: #333;
+            border: 1px solid var(--yellow);
+            color: var(--yellow);
+            font-size: .65em;
+            padding: 1px 7px;
+            border-radius: 10px;
+            vertical-align: middle;
+            margin-left: 4px;
+            letter-spacing: 1px;
+        }
+
         /* ── GAME ── */
         .game-container { width: 100%; max-width: 540px; }
 
@@ -419,6 +491,18 @@
         </div>
     </div>
 
+    <div style="text-align:center; margin-top:12px;">
+        <div style="font-family:'Special Elite',serif; color:#888; font-size:.85em; letter-spacing:3px; margin-bottom:10px;">MODO DE JOGO</div>
+        <div class="mode-selector">
+            <button class="mode-btn selected" id="btn-2p" onclick="selectMode('2p')">👥 2 JOGADORES</button>
+            <button class="mode-btn" id="btn-cpu" onclick="selectMode('cpu')">🤖 VS COMPUTADOR</button>
+        </div>
+        <div class="side-selector" id="side-selector">
+            <div style="width:100%; text-align:center; font-family:'Special Elite',serif; color:#888; font-size:.8em; letter-spacing:3px; margin-bottom:6px;">JOGAR COM:</div>
+            <button class="side-btn p1-side selected" id="btn-side1" onclick="selectSide(1)">🔴 JBLULIS</button>
+            <button class="side-btn p2-side" id="btn-side2" onclick="selectSide(2)">💚 ANABOZO</button>
+        </div>
+    </div>
     <button class="btn" onclick="startGame()">⚽ JOGAR! ⚽</button>
 </div>
 
@@ -437,7 +521,7 @@
             <div class="p-info p1-info" id="p1-info">
                 <img class="p-photo" id="p1-photo" alt="P1">
                 <div>
-                    <div class="p-name" id="p1-name">JBLULIS</div>
+                    <div><span class="p-name" id="p1-name">JBLULIS</span><span class="cpu-badge" id="p1-cpu-badge" style="display:none">CPU</span></div>
                     <div class="p-score" id="p1-score">0</div>
                 </div>
             </div>
@@ -445,7 +529,7 @@
             <div class="p-info p2-info" id="p2-info">
                 <img class="p-photo" id="p2-photo" alt="P2">
                 <div>
-                    <div class="p-name" id="p2-name">ANABOZO</div>
+                    <div><span class="p-name" id="p2-name">ANABOZO</span><span class="cpu-badge" id="p2-cpu-badge" style="display:none">CPU</span></div>
                     <div class="p-score" id="p2-score">0</div>
                 </div>
             </div>
@@ -497,6 +581,10 @@ let games = 0;
 let active = true;
 let imgs = [IMG1, IMG2];
 let names = ['JBLULIS','ANABOZO'];
+let vsComputer = false;
+let humanPlayer = 1;
+let gameMode = '2p';
+let humanSide = 1;
 
 const WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 
@@ -534,13 +622,34 @@ function loadPhoto(evt, p) {
     r.readAsDataURL(file);
 }
 
+function selectMode(m) {
+    gameMode = m;
+    document.getElementById('btn-2p').classList.toggle('selected', m==='2p');
+    document.getElementById('btn-cpu').classList.toggle('selected', m==='cpu');
+    const ss = document.getElementById('side-selector');
+    ss.classList.toggle('show', m==='cpu');
+}
+
+function selectSide(s) {
+    humanSide = s;
+    document.getElementById('btn-side1').classList.toggle('selected', s===1);
+    document.getElementById('btn-side2').classList.toggle('selected', s===2);
+}
+
 function startGame() {
+    vsComputer = gameMode === 'cpu';
+    humanPlayer = humanSide;
     names[0] = document.getElementById('name1').value || 'JBLULIS';
     names[1] = document.getElementById('name2').value || 'ANABOZO';
     document.getElementById('p1-name').textContent = names[0];
     document.getElementById('p2-name').textContent = names[1];
     document.getElementById('p1-photo').src = imgs[0];
     document.getElementById('p2-photo').src = imgs[1];
+    // Show CPU badges
+    const b1 = document.getElementById('p1-cpu-badge');
+    const b2 = document.getElementById('p2-cpu-badge');
+    if (b1) b1.style.display = (vsComputer && humanPlayer!==1) ? 'inline-block' : 'none';
+    if (b2) b2.style.display = (vsComputer && humanPlayer!==2) ? 'inline-block' : 'none';
     scores = {1:0,2:0}; draws = 0; games = 0;
     showScreen('game');
     resetBoard();
@@ -557,10 +666,15 @@ function resetBoard() {
     updateActive();
     setTurnMsg();
     updateHistory();
+    // If AI goes first (AI is player 1 and human is player 2)
+    if (vsComputer && humanPlayer !== 1) {
+        setTimeout(aiMove, 500);
+    }
 }
 
 function move(i) {
     if (!active || board[i]) return;
+    if (vsComputer && turn !== humanPlayer) return; // block click during AI turn
     board[i] = turn;
     const cell = document.getElementById('c'+i);
     cell.classList.add('taken');
@@ -573,6 +687,52 @@ function move(i) {
     turn = turn===1?2:1;
     updateActive();
     setTurnMsg();
+    if (vsComputer && turn !== humanPlayer) {
+        setTimeout(aiMove, 480);
+    }
+}
+
+function aiMove() {
+    if (!active) return;
+    const best = minimax(board, 3-humanPlayer, true);
+    if (best.idx !== -1) {
+        board[best.idx] = turn;
+        const cell = document.getElementById('c'+best.idx);
+        cell.classList.add('taken');
+        const img = document.createElement('img');
+        img.src = imgs[turn-1];
+        img.className = 'cell-img';
+        cell.appendChild(img);
+        const result = check();
+        if (result) { handleResult(result); return; }
+        turn = humanPlayer;
+        updateActive();
+        setTurnMsg();
+    }
+}
+
+function minimax(b, aiP, isMax) {
+    const hP = humanPlayer;
+    // Check terminal states
+    for (const [a,bc,c] of WINS) {
+        if (b[a] && b[a]===b[bc] && b[a]===b[c]) {
+            return { score: b[a]===aiP ? 10 : -10, idx: -1 };
+        }
+    }
+    const empty = b.map((v,i)=>v?-1:i).filter(i=>i>=0);
+    if (!empty.length) return { score: 0, idx: -1 };
+
+    let best = isMax ? { score: -Infinity, idx: -1 } : { score: Infinity, idx: -1 };
+    const curP = isMax ? aiP : hP;
+    for (const i of empty) {
+        b[i] = curP;
+        const res = minimax(b, aiP, !isMax);
+        b[i] = null;
+        if (isMax ? res.score > best.score : res.score < best.score) {
+            best = { score: res.score, idx: i };
+        }
+    }
+    return best;
 }
 
 function check() {
@@ -736,6 +896,10 @@ function updateActive() {
 }
 
 function setTurnMsg() {
+    if (vsComputer && turn !== humanPlayer) {
+        document.getElementById('turn-msg').textContent = '🤖 COMPUTADOR pensando...';
+        return;
+    }
     const name = names[turn-1];
     const t1 = [`${name}, é sua vez! ⚽`, `Vai lá, ${name}! 🎯`, `${name} na jogada! 🔥`];
     document.getElementById('turn-msg').textContent = t1[Math.floor(Math.random()*t1.length)];
