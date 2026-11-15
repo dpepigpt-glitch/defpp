@@ -260,6 +260,48 @@
             color: #44ff88;
             box-shadow: 0 0 12px rgba(0,156,59,.3);
         }
+        /* ── DIFFICULTY SELECTOR ── */
+        .diff-selector {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0 4px;
+        }
+        .diff-selector.show { display: flex; }
+        .diff-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .diff-btn {
+            background: #2a2a2a;
+            border: 2px solid #555;
+            color: #aaa;
+            padding: 10px 20px 6px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.05em;
+            letter-spacing: 2px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all .2s;
+            text-align: center;
+            min-width: 110px;
+        }
+        .diff-btn .diff-sub {
+            display: block;
+            font-family: 'Special Elite', serif;
+            font-size: .55em;
+            letter-spacing: 1px;
+            font-weight: normal;
+            margin-top: 2px;
+            color: #666;
+        }
+        .diff-btn:hover { border-color: #888; color: #ccc; }
+        .diff-btn:hover .diff-sub { color: #999; }
+        .diff-btn.selected.fudiav { border-color: #ff6b6b; color: #ff6b6b; background: #2a0a0a; }
+        .diff-btn.selected.fudiav .diff-sub { color: #cc4444; }
+        .diff-btn.selected.solz   { border-color: var(--yellow); color: var(--yellow); background: #2a2000; }
+        .diff-btn.selected.solz   .diff-sub { color: #aa9000; }
+        .diff-btn.selected.rr     { border-color: #ff4444; color: #ff4444; background: #2a0000; box-shadow: 0 0 14px rgba(255,0,0,.3); }
+        .diff-btn.selected.rr     .diff-sub { color: #cc2222; }
+
         .cpu-badge {
             display: inline-block;
             background: #333;
@@ -503,6 +545,23 @@
             <button class="side-btn p1-side selected" id="btn-side1" onclick="selectSide(1)">🔴 JBLULIS</button>
             <button class="side-btn p2-side" id="btn-side2" onclick="selectSide(2)">💚 ANABOZO</button>
         </div>
+        <div class="diff-selector show" id="diff-selector">
+            <div style="font-family:'Special Elite',serif; color:#888; font-size:.8em; letter-spacing:3px; margin-bottom:2px;">NÍVEL DE DIFICULDADE:</div>
+            <div class="diff-btns">
+                <button class="diff-btn fudiav" id="btn-fudiav" onclick="selectDiff('fudiav')">
+                    🧠 FUDIAVAL
+                    <span class="diff-sub">Joga qualquer coisa</span>
+                </button>
+                <button class="diff-btn solz selected" id="btn-solz" onclick="selectDiff('solz')">
+                    ☀️ SOLZINHO
+                    <span class="diff-sub">Normal</span>
+                </button>
+                <button class="diff-btn rr" id="btn-rr" onclick="selectDiff('rr')">
+                    💀 RR
+                    <span class="diff-sub">Impossível vencer</span>
+                </button>
+            </div>
+        </div>
     </div>
     <button class="btn" onclick="startGame()">⚽ JOGAR! ⚽</button>
 </div>
@@ -586,6 +645,7 @@ let vsComputer = false;
 let humanPlayer = 1;
 let gameMode = '2p';
 let humanSide = 1;
+let difficulty = 'solz';
 
 const WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 
@@ -627,14 +687,21 @@ function selectMode(m) {
     gameMode = m;
     document.getElementById('btn-2p').classList.toggle('selected', m==='2p');
     document.getElementById('btn-cpu').classList.toggle('selected', m==='cpu');
-    const ss = document.getElementById('side-selector');
-    ss.classList.toggle('show', m==='cpu');
+    document.getElementById('side-selector').classList.toggle('show', m==='cpu');
+    document.getElementById('diff-selector').classList.toggle('show', m==='cpu');
 }
 
 function selectSide(s) {
     humanSide = s;
     document.getElementById('btn-side1').classList.toggle('selected', s===1);
     document.getElementById('btn-side2').classList.toggle('selected', s===2);
+}
+
+function selectDiff(d) {
+    difficulty = d;
+    ['fudiav','solz','rr'].forEach(x => {
+        document.getElementById('btn-'+x).classList.toggle('selected', x===d);
+    });
 }
 
 function startGame() {
@@ -695,21 +762,54 @@ function move(i) {
 
 function aiMove() {
     if (!active) return;
-    const best = minimax(board, 3-humanPlayer, true);
-    if (best.idx !== -1) {
-        board[best.idx] = turn;
-        const cell = document.getElementById('c'+best.idx);
-        cell.classList.add('taken');
-        const img = document.createElement('img');
-        img.src = imgs[turn-1];
-        img.className = 'cell-img';
-        cell.appendChild(img);
-        const result = check();
-        if (result) { handleResult(result); return; }
-        turn = humanPlayer;
-        updateActive();
-        setTurnMsg();
+    const aiP = 3 - humanPlayer;
+    const empty = board.map((v,i)=>v?-1:i).filter(i=>i>=0);
+    let idx = -1;
+
+    if (difficulty === 'rr') {
+        // Perfect play — full minimax
+        idx = minimax(board, aiP, true).idx;
+    } else if (difficulty === 'solz') {
+        // Win if possible, block if needed, otherwise random
+        idx = smartMove(aiP) ?? empty[Math.floor(Math.random()*empty.length)];
+    } else {
+        // Fudiaval: 85% random, 15% smart (barely)
+        if (Math.random() < 0.15) idx = smartMove(aiP) ?? empty[Math.floor(Math.random()*empty.length)];
+        else idx = empty[Math.floor(Math.random()*empty.length)];
     }
+
+    if (idx === -1 || idx === undefined) return;
+    board[idx] = turn;
+    const cell = document.getElementById('c'+idx);
+    cell.classList.add('taken');
+    const img = document.createElement('img');
+    img.src = imgs[turn-1];
+    img.className = 'cell-img';
+    cell.appendChild(img);
+    const result = check();
+    if (result) { handleResult(result); return; }
+    turn = humanPlayer;
+    updateActive();
+    setTurnMsg();
+}
+
+function smartMove(aiP) {
+    const hP = humanPlayer;
+    // Win immediately if possible
+    for (const [a,b,c] of WINS) {
+        const line = [board[a],board[b],board[c]];
+        if (line.filter(v=>v===aiP).length===2 && line.includes(null)) {
+            return [a,b,c][line.indexOf(null)];
+        }
+    }
+    // Block human win
+    for (const [a,b,c] of WINS) {
+        const line = [board[a],board[b],board[c]];
+        if (line.filter(v=>v===hP).length===2 && line.includes(null)) {
+            return [a,b,c][line.indexOf(null)];
+        }
+    }
+    return null;
 }
 
 function minimax(b, aiP, isMax) {
@@ -898,7 +998,12 @@ function updateActive() {
 
 function setTurnMsg() {
     if (vsComputer && turn !== humanPlayer) {
-        document.getElementById('turn-msg').textContent = '🤖 Espera, tô pensando, não sou um JuJu Leonel porra...';
+        const thinkMsgs = {
+            fudiav: '🧠 Ermm... bora em qualquer um aqui...',
+            solz:   '🤖 Espera, tô pensando, não sou um JuJu Leonel porra...',
+            rr:     '💀 Calculando sua destruição...'
+        };
+        document.getElementById('turn-msg').textContent = thinkMsgs[difficulty] || thinkMsgs.solz;
         return;
     }
     const name = names[turn-1];
