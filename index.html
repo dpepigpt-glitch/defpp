@@ -516,7 +516,7 @@
             <div style="font-family:'Special Elite',serif; color:#888; font-size:.8em; letter-spacing:3px; margin-bottom:2px;">NÍVEL DE DIFICULDADE:</div>
             <div class="diff-btns">
                 <button class="diff-btn fudiav" id="btn-fudiav" onclick="selectDiff('fudiav')">
-                    🥚🤓 FUDISvaldo
+                    🥚🤓 FUDISVAl
                     <span class="diff-sub">Nem sabe o que tá fazendo</span>
                 </button>
                 <button class="diff-btn solz selected" id="btn-solz" onclick="selectDiff('solz')">
@@ -734,7 +734,7 @@ function aiMove() {
         // Win if possible, block if needed, otherwise random
         idx = smartMove(aiP) ?? empty[Math.floor(Math.random()*empty.length)];
     } else {
-        // FUDISvaldo: 100% random, nem tenta
+        // FUDISVAl: 100% random, nem tenta
         idx = empty[Math.floor(Math.random()*empty.length)];
     }
 
@@ -959,7 +959,7 @@ function updateActive() {
 function setTurnMsg() {
     if (vsComputer && turn !== humanPlayer) {
         const thinkMsgs = {
-            fudiav: '🥚🤓 FUDISvaldo: um, to pensando, vou já decidir, jaja decido, ei alguem decide por mim ai ?',
+            fudiav: '🥚🤓 FUDISVAl: um, to pensando, vou já decidir, jaja decido, ei alguem decide por mim ai ?',
             solz:   '☀️ Solzinho: calma estou malhando, jaja jogo',
             rr:     '💀 RR: Calculando sua destruição...'
         };
